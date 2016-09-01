@@ -1,0 +1,5 @@
+General Style Guidelines:
+	- Keep functions under 30 lines when possible
+	- Capitalize all words in class names
+	- Cammel-case all variables 
+	- Make variable names meaningful, but simple
