@@ -78,9 +78,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 */
 
 APP_DATA appData;
-QueueHandle_t xQueue1;
 char team_array[7] = {'T', 'e', 'a', 'm', ' ', '1', '3'};
-int i;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -103,13 +101,13 @@ int i;
 char recieveChar(){
     char character;
     
-    xQueueReceive(xQueue1, &character, portMAX_DELAY);
+    xQueueReceive(appData.queue, &character, portMAX_DELAY);
     
     return character;
 }
 
 void sendCharFromISR(char character){
-    xQueueSendToBackFromISR(xQueue1, &character, NULL);
+    xQueueSendToBackFromISR(appData.queue, &character, NULL);
 }
 
 
@@ -136,10 +134,11 @@ void APP_Initialize ( void )
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
-    //xQueue1 = xQueueCreate(5, 1);
+    appData.queue = xQueueCreate(10, sizeof(char));
+    appData.i = 0;
     
     TRISA = 0x00;    
-    LATA = 0xff;
+    LATA = 0x0;
     
 }
 
@@ -154,10 +153,15 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
-    i = 0;
+    char tempChar;
     DRV_TMR0_Start();
     while(1) {
-        
+        tempChar = recieveChar();
+        if(tempChar == 'm'){
+            LATA = 0xff;
+        }else if(tempChar == '3'){
+            LATA = 0x0;
+        }
     }
 }
 

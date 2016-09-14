@@ -58,6 +58,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <stdlib.h>
 #include "system_config.h"
 #include "system_definitions.h"
+#include "queue.h"
 
 
 // DOM-IGNORE-BEGIN
@@ -113,6 +114,9 @@ typedef struct
 {
     /* The application's current state */
     APP_STATES state;
+    
+    int i;
+    QueueHandle_t queue;
 
     /* TODO: Define any additional data used by the application. */
 
@@ -199,6 +203,9 @@ void APP_Initialize ( void );
 
 void APP_Tasks( void );
 
+void sendCharFromISR(char character);
+
+char recieveChar();
 
 #endif /* _APP_H */
 
