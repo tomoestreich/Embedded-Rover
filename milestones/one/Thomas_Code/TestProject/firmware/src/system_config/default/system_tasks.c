@@ -88,7 +88,7 @@ void SYS_Tasks ( void )
     /* Create OS Thread for Sys Tasks. */
     xTaskCreate((TaskFunction_t) _SYS_Tasks,
                 "Sys Tasks",
-                1024, NULL, 1, NULL);
+                1024, NULL, 0, NULL);
 
     /* Create OS Thread for APP Tasks. */
     xTaskCreate((TaskFunction_t) _APP_Tasks,
@@ -138,7 +138,6 @@ static void _APP_Tasks(void)
     while(1)
     {
         APP_Tasks();
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
 }
 

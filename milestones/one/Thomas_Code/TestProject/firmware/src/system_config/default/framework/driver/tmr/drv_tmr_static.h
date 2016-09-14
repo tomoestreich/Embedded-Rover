@@ -108,19 +108,7 @@ void DRV_TMR0_PeriodValueSet(uint32_t value);
 uint32_t DRV_TMR0_PeriodValueGet(void);
 void DRV_TMR0_StopInIdleDisable(void);
 void DRV_TMR0_StopInIdleEnable(void);
-bool DRV_TMR0_AlarmRegister(
-    uint32_t divider, 
-    bool isPeriodic, 
-    uintptr_t context, 
-    DRV_TMR_CALLBACK callBack 
-);
-bool DRV_TMR0_AlarmDisable(void);
-void DRV_TMR0_AlarmEnable(bool enable);
-void DRV_TMR0_AlarmPeriodSet(uint32_t value);
-uint32_t DRV_TMR0_AlarmPeriodGet(void);
-void DRV_TMR0_AlarmDeregister(void);
-uint32_t DRV_TMR0_AlarmHasElapsed(void);
-void DRV_TMR0_Tasks(void);
+static inline void DRV_TMR0_Tasks(void) {}
 uint32_t DRV_TMR0_CounterFrequencyGet(void);
 DRV_TMR_OPERATION_MODE DRV_TMR0_DividerRangeGet
 (

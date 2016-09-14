@@ -54,10 +54,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 
 #include "app.h"
-#include "FreeRTOS.h"
 #include "queue.h"
-#include "../include/timers.h"
-#include "../include/task.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -82,7 +79,6 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 APP_DATA appData;
 QueueHandle_t xQueue1;
-TimerHandle_t xTimer2;
 char team_array[7] = {'T', 'e', 'a', 'm', ' ', '1', '3'};
 int i;
 
@@ -92,15 +88,10 @@ int i;
 // *****************************************************************************
 // *****************************************************************************
 
-//void vTimerCallback( TimerHandle_t pxTimer ){
-void vTimerCallback(){
-    //sendCharFromISR(team_array[i]);
-    //i++;
 
-    LATA = ~PORTA;
-    
-    
-}
+//void __ISR(_TIMER_2_VECTOR, ipl4) _InterruptHandler_(void){
+//    
+//}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -140,30 +131,16 @@ void APP_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
-
+    PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_2);
     
     /* TODO: Initialize your application's state machine and other
      * parameters.
      */
-    xQueue1 = xQueueCreate(5, 1);
+    //xQueue1 = xQueueCreate(5, 1);
     
-    i = 0;
+    TRISA = 0x00;    
+    LATA = 0xff;
     
-    TRISA = 0x00;
-    LATA = 0xffff;
-    
-    xTimer2 = xTimerCreate("Timer 2", 100, pdFALSE, (void *)0, vTimerCallback);
-    xTimerStart( xTimer2, 0 );
-    //xTaskStartScheduler();
-    
-//    // configure the core timer roll-over rate (100msec)
-//     OpenTimer1(T1_ON | T1_SOURCE_INT | T1_PS_1_256, 0xFFFF);
-// 
-//     // set up the core timer interrupt with a prioirty of 2 and zero sub-priority
-//     ConfigIntTimer1(T1_INT_ON | T1_INT_PRIOR_2);
-// 
-//     // enable device multi-vector interrupts
-//     INTEnableSystemMultiVectoredInt();
 }
 
 
@@ -177,39 +154,10 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
-
-    /* Check the application's current state. */
-    switch ( appData.state )
-    {
-        /* Application's initial state. */
-        case APP_STATE_INIT:
-        {
-            bool appInitialized = true;
-       
+    i = 0;
+    DRV_TMR0_Start();
+    while(1) {
         
-            if (appInitialized)
-            {
-            
-                appData.state = APP_STATE_SERVICE_TASKS;
-            }
-            break;
-        }
-
-        case APP_STATE_SERVICE_TASKS:
-        {
-        
-            break;
-        }
-
-        /* TODO: implement your application state machine.*/
-        
-
-        /* The default state should never be executed. */
-        default:
-        {
-            /* TODO: Handle error in application's state machine. */
-            break;
-        }
     }
 }
 
