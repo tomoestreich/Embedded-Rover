@@ -62,6 +62,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <xc.h>
 #include <sys/attribs.h>
 #include "app.h"
+#include "app_public.h"
 #include "system_definitions.h"
 
 // *****************************************************************************
@@ -76,7 +77,7 @@ extern char team_array[7];
     
 void IntHandlerDrvTmrInstance0(void)
 {
-    sendCharFromISR(team_array[appData.i]);
+    sendCharFromISR(appData.queue, team_array[appData.i]);
     appData.i++;
     appData.i = appData.i%7;
     

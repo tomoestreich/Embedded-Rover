@@ -54,6 +54,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 
 #include "app.h"
+#include "app_public.h"
 #include "queue.h"
 
 // *****************************************************************************
@@ -87,28 +88,11 @@ char team_array[7] = {'T', 'e', 'a', 'm', ' ', '1', '3'};
 // *****************************************************************************
 
 
-//void __ISR(_TIMER_2_VECTOR, ipl4) _InterruptHandler_(void){
-//    
-//}
-
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Local Functions
 // *****************************************************************************
 // *****************************************************************************
-
-
-char recieveChar(){
-    char character;
-    
-    xQueueReceive(appData.queue, &character, portMAX_DELAY);
-    
-    return character;
-}
-
-void sendCharFromISR(char character){
-    xQueueSendToBackFromISR(appData.queue, &character, NULL);
-}
 
 
 // *****************************************************************************
@@ -131,15 +115,11 @@ void APP_Initialize ( void )
     appData.state = APP_STATE_INIT;
     PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_2);
     
-    /* TODO: Initialize your application's state machine and other
-     * parameters.
-     */
     appData.queue = xQueueCreate(10, sizeof(char));
     appData.i = 0;
     
     TRISA = 0x00;    
     LATA = 0x0;
-    
 }
 
 
@@ -156,7 +136,7 @@ void APP_Tasks ( void )
     char tempChar;
     DRV_TMR0_Start();
     while(1) {
-        tempChar = recieveChar();
+        tempChar = recieveChar(appData.queue);
         if(tempChar == 'm'){
             LATA = 0xff;
         }else if(tempChar == '3'){

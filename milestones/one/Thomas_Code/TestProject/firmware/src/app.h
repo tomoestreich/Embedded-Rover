@@ -203,10 +203,6 @@ void APP_Initialize ( void );
 
 void APP_Tasks( void );
 
-void sendCharFromISR(char character);
-
-char recieveChar();
-
 #endif /* _APP_H */
 
 //DOM-IGNORE-BEGIN
