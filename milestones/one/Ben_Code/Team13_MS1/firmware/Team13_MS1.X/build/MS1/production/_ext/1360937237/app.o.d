@@ -160,4 +160,5 @@ build/MS1/production/_ext/1360937237/app.o:  \
  ../../../../third_party/rtos/FreeRTOS/Source/include/queue.h  \
  ../../../../third_party/rtos/FreeRTOS/Source/include/../include/timers.h  \
  ../../../../third_party/rtos/FreeRTOS/Source/include/../include/task.h  \
- ../../../../third_party/rtos/FreeRTOS/Source/include/../include/task.h 
+ ../../../../third_party/rtos/FreeRTOS/Source/include/../include/task.h  \
+ ../src/debug.h 

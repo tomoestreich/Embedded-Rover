@@ -58,6 +58,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "queue.h"
 #include "../include/timers.h"
 #include "../include/task.h"
+#include "debug.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -91,16 +92,6 @@ int i;
 // Section: Application Callback Functions
 // *****************************************************************************
 // *****************************************************************************
-
-//void vTimerCallback( TimerHandle_t pxTimer ){
-void vTimerCallback(){
-    //sendCharFromISR(team_array[i]);
-    //i++;
-
-    LATA = ~PORTA;
-    
-    
-}
 
 // *****************************************************************************
 // *****************************************************************************
@@ -141,14 +132,15 @@ void APP_Initialize ( void )
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
     
-//    // configure the core timer roll-over rate (100msec)
-//     OpenTimer1(T1_ON | T1_SOURCE_INT | T1_PS_1_256, 0xFFFF);
-// 
-//     // set up the core timer interrupt with a prioirty of 2 and zero sub-priority
-//     ConfigIntTimer1(T1_INT_ON | T1_INT_PRIOR_2);
-// 
-//     // enable device multi-vector interrupts
-//     INTEnableSystemMultiVectoredInt();
+    // Initialize the debugger output pins
+    dbgOutInit();
+    //dbgOutputLoc(DLOC_TASK_INIT);
+    
+    /* Configure the necessary I/0 ports and start TMR0 */
+    PLIB_PORTS_DirectionOutputSet(PORTS_ID_0, PORT_CHANNEL_A, 0x8);
+    PLIB_PORTS_PinWrite(PORTS_ID_0, PORT_CHANNEL_A, 0x8, 1);    
+    DRV_TMR0_Start();
+    
 }
 
 
@@ -170,13 +162,8 @@ void APP_Tasks ( void )
         case APP_STATE_INIT:
         {
             bool appInitialized = true;
-            TRISA = TRISA & 0xfff7;
-            LATA = 0xffff;
-            DRV_TMR0_Start();
-        
             if (appInitialized)
             {
-            
                 appData.state = APP_STATE_SERVICE_TASKS;
             }
             break;

@@ -1,17 +1,17 @@
 /* ************************************************************************** */
-/** Timer ISR Callback function source file
+/** Debug Routine Source File
 
   @Company
     Team 13
 
   @File Name
-    tmr_callback.c
+    debug.c
 
   @Summary
-    Timer interrupt callback function source file w/ function definitions
+    Debugging library source code for ECE 4534 Team 13 rover
 
   @Description
-    To define the functionality of all timer ISR callbacks
+    Function definitions for the debugging library for general rover processes
  */
 /* ************************************************************************** */
 
@@ -20,10 +20,7 @@
 /* Section: Included Files                                                    */
 /* ************************************************************************** */
 /* ************************************************************************** */
-#include <proc/p32mx795f512l.h>
-
-#include "tmr_callback.h"
-#include "peripheral/ports/plib_ports.h"
+#include "debug.h"
 
 /* ************************************************************************** */
 /* ************************************************************************** */
@@ -44,11 +41,23 @@
 // Section: Interface Functions                                               */
 /* ************************************************************************** */
 /* ************************************************************************** */
-void vTMR0_Callback(void)
+void dbgOutInit(void)
 {
-    PLIB_PORTS_PinToggle(PORTS_ID_0, PORT_CHANNEL_A, PORTS_BIT_POS_3);
-}
+    // Set pins as outputs 
+    PLIB_PORTS_DirectionOutputSet(PORTS_ID_0, PORT_CHANNEL_A, 0x0400);
+    PLIB_PORTS_DirectionOutputSet(PORTS_ID_0, PORT_CHANNEL_B, 0x3800);
+    PLIB_PORTS_DirectionOutputSet(PORTS_ID_0, PORT_CHANNEL_D, 0x0420);
+    PLIB_PORTS_DirectionOutputSet(PORTS_ID_0, PORT_CHANNEL_E, 0x00FF);
+    PLIB_PORTS_DirectionOutputSet(PORTS_ID_0, PORT_CHANNEL_G, 0x0080);
 
+    // Set desired pins to low
+    PLIB_PORTS_Write(PORTS_ID_0, PORT_CHANNEL_A, 0x0400);
+    PLIB_PORTS_Write(PORTS_ID_0, PORT_CHANNEL_B, 0x3800);
+    PLIB_PORTS_Write(PORTS_ID_0, PORT_CHANNEL_D, 0x0420);
+    PLIB_PORTS_Write(PORTS_ID_0, PORT_CHANNEL_E, 0x00FF);
+    PLIB_PORTS_Write(PORTS_ID_0, PORT_CHANNEL_G, 0x0080);
+
+}
 
 /* *****************************************************************************
  End of File

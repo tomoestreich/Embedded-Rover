@@ -46,7 +46,7 @@
 /* ************************************************************************** */
 void vTMR0_Callback(void)
 {
-    PLIB_PORTS_PinToggle(PORTS_ID_0, PORT_CHANNEL_A, PORTS_BIT_POS_3);
+    LATA = ~(PORTA & 0x8);
 }
 
 

@@ -110,6 +110,8 @@
         <itemPath>../../../../third_party/rtos/FreeRTOS/Source/include/task.h</itemPath>
         <itemPath>../../../../third_party/rtos/FreeRTOS/Source/include/timers.h</itemPath>
       </logicalFolder>
+      <itemPath>../src/debug.c</itemPath>
+      <itemPath>../src/debug.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -254,7 +256,7 @@
         <property key="enable-unroll-loops" value="false"/>
         <property key="exclude-floating-point" value="false"/>
         <property key="extra-include-directories"
-                  value="../src;../src/system_config/MS1;../../../../framework;../src/system_config/MS1/framework;../../../../third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MX;../../../../third_party/rtos/FreeRTOS/Source/include"/>
+                  value=";../src;../src/system_config/MS1;../../../../framework;../src/system_config/MS1/framework;../../../../third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MX;../../../../third_party/rtos/FreeRTOS/Source/include"/>
         <property key="generate-16-bit-code" value="false"/>
         <property key="generate-micro-compressed-code" value="false"/>
         <property key="isolate-each-function" value="true"/>
@@ -279,7 +281,7 @@
         <property key="enable-symbols" value="true"/>
         <property key="exclude-floating-point-library" value="false"/>
         <property key="expand-macros" value="false"/>
-        <property key="extra-include-directories-for-assembler" value=""/>
+        <property key="extra-include-directories-for-assembler" value=";"/>
         <property key="extra-include-directories-for-preprocessor"
                   value="../../../../third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MX;../../../../third_party/rtos/FreeRTOS/Source/include;../src/system_config/MS1"/>
         <property key="false-conditionals" value="false"/>
