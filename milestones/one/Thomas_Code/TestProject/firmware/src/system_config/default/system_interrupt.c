@@ -62,6 +62,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <xc.h>
 #include <sys/attribs.h>
 #include "app.h"
+#include "debug.h"
 #include "app_public.h"
 #include "system_definitions.h"
 
@@ -77,10 +78,14 @@ extern char team_array[7];
     
 void IntHandlerDrvTmrInstance0(void)
 {
+    dbgOutputLoc(DLOC_ISR_ENTER);
+    dbgOutputLoc(DLOC_ISR_BEFORE_QUEUE);
     sendCharFromISR(appData.queue, team_array[appData.i]);
+    dbgOutputLoc(DLOC_ISR_AFTER_QUEUE);
     appData.i++;
     appData.i = appData.i%7;
     
+    dbgOutputLoc(DLOC_ISR_EXIT);
     PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_2);
 }
   

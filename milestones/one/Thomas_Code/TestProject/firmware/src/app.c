@@ -81,6 +81,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 APP_DATA appData;
 char team_array[7] = {'T', 'e', 'a', 'm', ' ', '1', '3'};
+int t13_count;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -124,9 +125,9 @@ void APP_Initialize ( void )
     dbgOutputLoc(0xAA);
     
     /* Configure the necessary I/0 ports and start TMR0 */
-    PLIB_PORTS_DirectionOutputSet(PORTS_ID_0, PORT_CHANNEL_A, 0x8);
-    PLIB_PORTS_PinWrite(PORTS_ID_0, PORT_CHANNEL_A, 0x8, 1);
+    TRISA = 0x00;
     
+    t13_count = 0;
 }
 
 
@@ -161,14 +162,21 @@ void APP_Tasks ( void )
 
         case APP_STATE_SERVICE_TASKS:
         {
-        	tempChar = recieveChar(appData.queue);
-		dbgOutputVal(tempChar);
+            dbgOutputLoc(DLOC_TASK_BEFORE_QUEUE);
+            tempChar = recieveChar(appData.queue);
+            dbgOutputLoc(DLOC_TASK_AFTER_QUEUE);
+            dbgOutputVal(tempChar);
+            t13_count++;
+            
+            if(t13_count > 25){
+                appData.state = 5;
+            }
             break;
         }
 
         default:
         {
-            /* TODO: Handle error in application's state machine. */
+            procFailure(DLOC_FAILURE_EXIT);
             break;
         }
     }

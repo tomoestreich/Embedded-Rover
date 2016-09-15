@@ -42,12 +42,13 @@ extern "C" {
 #define DLOC_STATE_INIT 1
 #define DLOC_STATE_RUN 2
 #define DLOC_TASK_WHILE 3
-#define DLOC_TASK_BEFORE_QUEUE 2
-#define DLOC_TASK_AFTER_QUEUE 2
-#define DLOC_ISR_ENTER 2
-#define DLOC_ISR_EXIT 2
-#define DLOC_ISR_BEFORE_QUEUE 2
-#define DLOC_ISR_AFTER_QUEUE 2
+#define DLOC_TASK_BEFORE_QUEUE 4
+#define DLOC_TASK_AFTER_QUEUE 5
+#define DLOC_ISR_ENTER 6
+#define DLOC_ISR_EXIT 7
+#define DLOC_ISR_BEFORE_QUEUE 8
+#define DLOC_ISR_AFTER_QUEUE 9
+#define DLOC_FAILURE_EXIT 0xff
     
 // *****************************************************************************
 // *****************************************************************************

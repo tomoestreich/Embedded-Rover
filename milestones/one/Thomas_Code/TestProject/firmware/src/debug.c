@@ -95,7 +95,8 @@ void procFailure(unsigned char outLoc)
     // output the location, stop the timer, light LED5, and enter infinite loop
     dbgOutputLoc(outLoc);
     DRV_TMR0_Stop();
-    PLIB_PORTS_PinWrite(PORTS_ID_0, PORT_CHANNEL_A, PORTS_BIT_POS_7, 1);
+    LATA = PORTA | 0x0008;
+    DRV_TMR0_Stop();
     while(1){}
 }
 
