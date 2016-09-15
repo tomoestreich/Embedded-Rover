@@ -56,6 +56,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include "app.h"
 #include "app_public.h"
 #include "queue.h"
+#include "debug.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -87,7 +88,6 @@ char team_array[7] = {'T', 'e', 'a', 'm', ' ', '1', '3'};
 // *****************************************************************************
 // *****************************************************************************
 
-
 // *****************************************************************************
 // *****************************************************************************
 // Section: Application Local Functions
@@ -113,13 +113,20 @@ void APP_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
-    PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_2);
+
+	PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_2);
     
     appData.queue = xQueueCreate(10, sizeof(char));
     appData.i = 0;
     
-    TRISA = 0x00;    
-    LATA = 0x0;
+    // Initialize the debugger output pins
+    dbgOutInit();
+    dbgOutputLoc(0xAA);
+    
+    /* Configure the necessary I/0 ports and start TMR0 */
+    PLIB_PORTS_DirectionOutputSet(PORTS_ID_0, PORT_CHANNEL_A, 0x8);
+    PLIB_PORTS_PinWrite(PORTS_ID_0, PORT_CHANNEL_A, 0x8, 1);
+    
 }
 
 
@@ -133,14 +140,36 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
+    dbgOutputLoc(DLOC_TASK_INIT);
     char tempChar;
     DRV_TMR0_Start();
-    while(1) {
-        tempChar = recieveChar(appData.queue);
-        if(tempChar == 'm'){
-            LATA = 0xff;
-        }else if(tempChar == '3'){
-            LATA = 0x0;
+
+    /* Check the application's current state. */
+    switch ( appData.state )
+    {
+        /* Application's initial state. */
+        case APP_STATE_INIT:
+        {
+            dbgOutputLoc(DLOC_STATE_INIT);
+            bool appInitialized = true;
+            if (appInitialized)
+            {
+                appData.state = APP_STATE_SERVICE_TASKS;
+            }
+            break;
+        }
+
+        case APP_STATE_SERVICE_TASKS:
+        {
+        	tempChar = recieveChar(appData.queue);
+		dbgOutputVal(tempChar);
+            break;
+        }
+
+        default:
+        {
+            /* TODO: Handle error in application's state machine. */
+            break;
         }
     }
 }
