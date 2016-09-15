@@ -62,6 +62,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 #include <xc.h>
 #include <sys/attribs.h>
 #include "app.h"
+#include "app_public.h"
 #include "system_definitions.h"
 
 // *****************************************************************************
@@ -70,11 +71,17 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 // *****************************************************************************
 
+extern APP_DATA appData;
+extern char team_array[7];
+
     
 void IntHandlerDrvTmrInstance0(void)
 {
+    sendCharFromISR(appData.queue, team_array[appData.i]);
+    appData.i++;
+    appData.i = appData.i%7;
+    
     PLIB_INT_SourceFlagClear(INT_ID_0,INT_SOURCE_TIMER_2);
-    DRV_TMR0_Tasks();
 }
   
 /*******************************************************************************

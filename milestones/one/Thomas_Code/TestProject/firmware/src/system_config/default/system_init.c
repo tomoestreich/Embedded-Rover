@@ -59,8 +59,8 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 /*** DEVCFG0 ***/
 
-#pragma config DEBUG =      OFF
-#pragma config ICESEL =     ICS_PGx1
+#pragma config DEBUG =      ON
+#pragma config ICESEL =     ICS_PGx2
 #pragma config PWP =        OFF
 #pragma config BWP =        OFF
 #pragma config CP =         OFF
@@ -68,19 +68,19 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 /*** DEVCFG1 ***/
 
 #pragma config FNOSC =      FRCPLL
-#pragma config FSOSCEN =    OFF
-#pragma config IESO =       OFF
+#pragma config FSOSCEN =    ON
+#pragma config IESO =       ON
 #pragma config POSCMOD =    OFF
 #pragma config OSCIOFNC =   OFF
 #pragma config FPBDIV =     DIV_1
-#pragma config FCKSM =      CSDCMD
+#pragma config FCKSM =      CSECMD
 #pragma config WDTPS =      PS1048576
 #pragma config FWDTEN =     OFF
 /*** DEVCFG2 ***/
 
 #pragma config FPLLIDIV =   DIV_2
-#pragma config FPLLMUL =    MUL_24
-#pragma config FPLLODIV =   DIV_2
+#pragma config FPLLMUL =    MUL_20
+#pragma config FPLLODIV =   DIV_1
 #pragma config UPLLIDIV =   DIV_2
 #pragma config UPLLEN =     OFF
 /*** DEVCFG3 ***/

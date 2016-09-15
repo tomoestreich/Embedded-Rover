@@ -94,7 +94,7 @@ void SYS_CLK_Initialize( const SYS_CLK_INIT const * clkInit )
     PLIB_OSC_FRCDivisorSelect( OSC_ID_0, OSC_FRC_DIV_2);
 
     /* Enable Peripheral Bus 1 */
-    PLIB_OSC_PBClockDivisorSet (OSC_ID_0, 0, 8 );
+    PLIB_OSC_PBClockDivisorSet (OSC_ID_0, 0, 1 );
 
 
 
