@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #=====================================================================
 # Filename: 	msg_viewer.py
 # Date: 	09/25/2016
@@ -20,8 +21,8 @@ import time
 def connect(devID):
 	print "Hello, World!"
 
-def main(void):
-	conntect(-1)
+def main():
+	connect(-1)
 
 if __name__ == "__main__":
 	main()
