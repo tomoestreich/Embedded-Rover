@@ -100,13 +100,6 @@ int sensorDataI;
 // *****************************************************************************
 
 
-/*******************************************************************************
-  Function:
-    bool WriteString (void)
-
-  Summary:
-    Writes a string to the console
-*/
 bool writeString(char * str){
     if(*str == '\0')
     {
@@ -114,10 +107,10 @@ bool writeString(char * str){
     }
 
     /* Write a character at a time, only if transmitter is empty */
-    while (PLIB_USART_TransmitterIsEmpty(USART_ID_1))
+    while (1)
     {
         /* Send character */
-        PLIB_USART_TransmitterByteSend(USART_ID_1, *str);
+        DRV_USART0_WriteByte(*str);
 
         /* Increment to address of next character */
         str++;
@@ -128,25 +121,6 @@ bool writeString(char * str){
         }
     }
     return false;
-}
-
-/*******************************************************************************
-  Function:
-    bool PutCharacter (const char character)
-
-  Summary:
-    Sends a character to the console
-*/
-bool putCharacter(const char character){
-    /* Check if buffer is empty for a new transmission */
-    if(PLIB_USART_TransmitterIsEmpty(USART_ID_1))
-    {
-        /* Send character */
-        PLIB_USART_TransmitterByteSend(USART_ID_1, character);
-        return true;
-    }
-    else
-        return false;
 }
 
 
@@ -217,8 +191,10 @@ void APP_Tasks ( void )
                 if(roverHasBeenSpotted(eyesQueue)){
                     LATA = PORTA | 0x0008;
                     
-                    DRV_USART0_WriteByte('S');
-                    DRV_USART0_WriteByte('E');
+                    writeString("SEEN\n");
+                    
+                    //DRV_USART0_WriteByte('S');
+                    //DRV_USART0_WriteByte('E');
                     
                     //putCharacter('S');
                     //putCharacter('E');
