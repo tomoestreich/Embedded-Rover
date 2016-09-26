@@ -7,7 +7,8 @@ WiFly:
 RPi 1:
     - SSID: Team13
     - Pass: Pass1234
-    - Gateway: 192.168.42.1
+    - Gateway/Router: 192.168.42.1
+    - Comm Server: 192.168.42.2
     - Mask 255.255.255.0
     - Channel: 6
     
