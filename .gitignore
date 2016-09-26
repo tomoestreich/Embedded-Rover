@@ -1,1 +1,4 @@
 *.exe
+!*.c
+!*.py
+!*.hconfig
