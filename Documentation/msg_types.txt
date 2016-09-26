@@ -1,0 +1,16 @@
+# ROUGH DRAFT OF MESSAGE FORMATTING GUIDELINES/DECLARATIONS
+# Format:
+#       TYPE:
+#           - Key1: Value1 (Size in Bytes)
+#           - Key2: Value2 (Size in Bytes)
+#           - ...
+# All Type and Key fields are 4 Bytes in length (4 ASCII Chars)
+#
+# All messages follow the format:
+#   |SRC|DST|SEQ|TYPE|KEY1|VALUE1|...|CHKSUM|
+#   |4b|4b|1B|4B|4B|N/A|...|9b|
+#   All VALUE fields start with a single parity bit
+
+DBG:
+    - ERR: Unsigned Integer (2 Bytes)
+    - MSG: Unsigned Char (20 Bytes)
