@@ -55,6 +55,7 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 #include "app.h"
 #include "task_eyes.h"
+#include "debug.h"
 
 // *****************************************************************************
 // *****************************************************************************
@@ -79,9 +80,11 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 APP_DATA appData;
 QueueHandle_t eyesQueue;
+QueueHandle_t rxQueue;
 int sensorData[21] = {0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf,
-                    0xf, 0xf, 0xf, 0xf, 0xf, 0x1, 0x1, 0x2, 0x0};
+                    0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0x1};
 int sensorDataI;
+bool checkReceived;
 
 
 // *****************************************************************************
@@ -101,6 +104,9 @@ int sensorDataI;
 
 
 bool writeString(char * str){
+    //int size = strlen(str);
+    //DRV_USART0_Write(str, size);
+    
     if(*str == '\0')
     {
         return true;
@@ -110,10 +116,12 @@ bool writeString(char * str){
     while (1)
     {
         /* Send character */
-        DRV_USART0_WriteByte(*str);
+        if(!DRV_USART0_TransmitBufferIsFull()){
+            DRV_USART0_WriteByte(*str);
 
-        /* Increment to address of next character */
-        str++;
+            /* Increment to address of next character */
+            str++;
+        }
 
         if(*str == '\0')
         {
@@ -122,7 +130,6 @@ bool writeString(char * str){
     }
     return false;
 }
-
 
 // *****************************************************************************
 // *****************************************************************************
@@ -142,18 +149,16 @@ void APP_Initialize ( void )
 {
     /* Place the App state machine in its initial state. */
     appData.state = APP_STATE_INIT;
-    
+    dbgOutputLoc(DLOC_TASK_INIT);
     PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_2);
     
-    PLIB_USART_Enable(USART_ID_1);
-    
     eyesQueue = xQueueCreate(10, sizeof(int));
-
+    rxQueue = xQueueCreate(20, sizeof(char));
     sensorDataI = 0;
     
-    TRISA = 0;
-    
+    // Start TMR0 and Initialize the debugger
     DRV_TMR0_Start();
+    dbgOutInit();
 }
 
 
@@ -167,19 +172,16 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
-
+    char readbuf[255];
+    
     /* Check the application's current state. */
     switch ( appData.state )
     {
         /* Application's initial state. */
-        case APP_STATE_INIT:
-        {
+        case APP_STATE_INIT:{
             bool appInitialized = true;
-       
-        
-            if (appInitialized)
-            {
-            
+            dbgOutputLoc(DLOC_STATE_INIT);
+            if (appInitialized){
                 appData.state = APP_STATE_SERVICE_TASKS;
             }
             break;
@@ -187,34 +189,50 @@ void APP_Tasks ( void )
 
         case APP_STATE_SERVICE_TASKS:
         {
+            // update debug vars
+            dbgOutputLoc(DLOC_STATE_BEGIN_TX);
+            
             if(uxQueueMessagesWaiting(eyesQueue)){
                 if(roverHasBeenSpotted(eyesQueue)){
-                    LATA = PORTA | 0x0008;
-                    
-                    writeString("SEEN\n");
-                    
-                    //DRV_USART0_WriteByte('S');
-                    //DRV_USART0_WriteByte('E');
-                    
-                    //putCharacter('S');
-                    //putCharacter('E');
-                    //putCharacter('E');
-                    //putCharacter('N');
-                    //writeString("SEEN");
-                }else{
-                    LATA = PORTA & 0x0;
+                    writeString("SEEN");
+                    appData.state = WAIT_FOR_CONFIRMATION;
+                }
+                else{
+                    writeString("NOTSEEN");
+                    appData.state = WAIT_FOR_CONFIRMATION;
+                }
+            }
+            dbgOutputLoc(DLOC_STATE_TX_EYE_COMPLETE);
+            break;
+        }
+
+        case WAIT_FOR_CONFIRMATION:
+        {
+            dbgOutputLoc(DLOC_STATE_READ_USART);
+            
+            // Read the message when it becomes available and update debugger
+            if(xQueueReceive(rxQueue, &readbuf, portMAX_DELAY) == pdTRUE){
+                if(readbuf[0] == 'N'){
+                    dbgOutputVal(0x2);
+                    appData.state = APP_STATE_SERVICE_TASKS;
+                    readbuf[0] = 0;
+                }
+                else if (readbuf[0] == 'S')
+                {
+                    dbgOutputVal(0x1);
+                    appData.state = APP_STATE_SERVICE_TASKS;
+                    dbgOutputLoc(DLOC_STATE_USART_DREADY);
+                    readbuf[0] = 0;
                 }
             }
             break;
         }
-
-        /* TODO: implement your application state machine.*/
         
 
         /* The default state should never be executed. */
         default:
         {
-            /* TODO: Handle error in application's state machine. */
+            dbgOutputLoc(DLOC_STATE_DEFAULT);
             break;
         }
     }

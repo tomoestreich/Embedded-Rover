@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<configuration version="1.0.8.7">
+<configuration version="2.0.0.12">
   <General>
     <HarmonyPath path="../.."/>
     <Processor name=""/>
+    <Board name=""/>
     <ForceOptimization flag="true"/>
     <MergeStrategy flag="USER_ALL"/>
   </General>
@@ -242,7 +243,7 @@
       <Template>
         <Name>sys_ports_static.c</Name>
         <Path>Source Files/app/system_config/default/framework/system/ports/src</Path>
-        <Checksum>759B3920B8F625675D855AA9771FCCEC</Checksum>
+        <Checksum>95DFDD1603FE4DED042B76A806DFF3A5</Checksum>
       </Template>
       <Template>
         <Name>system_init.c</Name>
@@ -310,7 +311,7 @@
       <Template>
         <Name>system_config.h</Name>
         <Path>Header Files/app/system_config/default</Path>
-        <Checksum>6233FF3AF3FC0C47AA976BDBA57B1E13</Checksum>
+        <Checksum>B6C2634C1CC73E457398F8B668F7C58B</Checksum>
       </Template>
       <Template>
         <Name>app.h</Name>
@@ -357,7 +358,6 @@
       <C32>
         <Include value="C:\microchip\harmony\v1_08_01\apps\Milestone2.1\firmware\src"/>
         <Include value="C:\microchip\harmony\v1_08_01\apps\Milestone2.1\firmware\src\system_config\default"/>
-        <Include value="C:\microchip\harmony\v1_08_01\apps\Milestone2.1\firmware\src\default"/>
         <Include value="C:\microchip\harmony\v1_08_01\framework"/>
         <Include value="C:\microchip\harmony\v1_08_01\apps\Milestone2.1\firmware\src\system_config\default\framework"/>
         <Include value="../../../../third_party/rtos/FreeRTOS/Source/portable/MPLAB/PIC32MX"/>
