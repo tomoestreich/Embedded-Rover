@@ -1,5 +1,5 @@
 # To add static IP to dhcp list on RPi1 call:
-    /apps/pycontrol/dhcp_add_client.py -i <DESIRED IP> -m <DEV MAC ADD>
+    /apps/pycontrol/util/dhcp_add_client.py -i <DESIRED IP> -m <DEV MAC ADD>
 WiFly:
     - team13_1: 192.168.42.81
     - team13_2: 192.168.42.82
@@ -7,7 +7,8 @@ WiFly:
 RPi 1:
     - SSID: Team13
     - Pass: Pass1234
-    - Gateway: 192.168.42.1
+    - Gateway/Router: 192.168.42.1
+    - Comm Server: 192.168.42.2
     - Mask 255.255.255.0
     - Channel: 6
     
