@@ -79,9 +79,11 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 
 APP_DATA appData;
 QueueHandle_t eyesQueue;
+QueueHandle_t rxQueue;
 int sensorData[21] = {0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf,
-                    0xf, 0xf, 0xf, 0xf, 0xf, 0x1, 0x1, 0x2, 0x0};
+                    0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0xf, 0x1};
 int sensorDataI;
+bool checkReceived;
 
 
 // *****************************************************************************
@@ -101,6 +103,9 @@ int sensorDataI;
 
 
 bool writeString(char * str){
+    //int size = strlen(str);
+    //DRV_USART0_Write(str, size);
+    
     if(*str == '\0')
     {
         return true;
@@ -110,10 +115,12 @@ bool writeString(char * str){
     while (1)
     {
         /* Send character */
-        DRV_USART0_WriteByte(*str);
+        if(!DRV_USART0_TransmitBufferIsFull()){
+            DRV_USART0_WriteByte(*str);
 
-        /* Increment to address of next character */
-        str++;
+            /* Increment to address of next character */
+            str++;
+        }
 
         if(*str == '\0')
         {
@@ -122,7 +129,6 @@ bool writeString(char * str){
     }
     return false;
 }
-
 
 // *****************************************************************************
 // *****************************************************************************
@@ -145,13 +151,16 @@ void APP_Initialize ( void )
     
     PLIB_INT_SourceEnable(INT_ID_0, INT_SOURCE_TIMER_2);
     
-    PLIB_USART_Enable(USART_ID_1);
+    //PLIB_USART_Enable(USART_ID_1);
+    //DRV_USART0_Initialize();
     
     eyesQueue = xQueueCreate(10, sizeof(int));
+    rxQueue = xQueueCreate(20, sizeof(char));
 
     sensorDataI = 0;
     
     TRISA = 0;
+    LATA = PORTA & 0x0;
     
     DRV_TMR0_Start();
 }
@@ -167,19 +176,16 @@ void APP_Initialize ( void )
 
 void APP_Tasks ( void )
 {
-
+    char readbuf[255];
+    int i = 0;
     /* Check the application's current state. */
     switch ( appData.state )
     {
         /* Application's initial state. */
-        case APP_STATE_INIT:
-        {
+        case APP_STATE_INIT:{
             bool appInitialized = true;
-       
         
-            if (appInitialized)
-            {
-            
+            if (appInitialized){
                 appData.state = APP_STATE_SERVICE_TASKS;
             }
             break;
@@ -191,30 +197,32 @@ void APP_Tasks ( void )
                 if(roverHasBeenSpotted(eyesQueue)){
                     LATA = PORTA | 0x0008;
                     
-                    writeString("SEEN\n");
+                    writeString("SEEN");
                     
-                    //DRV_USART0_WriteByte('S');
-                    //DRV_USART0_WriteByte('E');
-                    
-                    //putCharacter('S');
-                    //putCharacter('E');
-                    //putCharacter('E');
-                    //putCharacter('N');
-                    //writeString("SEEN");
-                }else{
-                    LATA = PORTA & 0x0;
+                    appData.state = WAIT_FOR_CONFIRMATION;
                 }
             }
             break;
         }
 
-        /* TODO: implement your application state machine.*/
+        case WAIT_FOR_CONFIRMATION:
+        {
+                //int readBytes = DRV_USART0_Read(readbuf, 254);
+            if(xQueueReceive(rxQueue, &readbuf, portMAX_DELAY) == pdTRUE){
+                if(readbuf[0] == 'o'){
+                    appData.state = APP_STATE_SERVICE_TASKS;
+                    LATA = PORTA & 0x0;
+                    readbuf[0] = 0;
+                }
+            }
+            break;
+        }
         
 
         /* The default state should never be executed. */
         default:
         {
-            /* TODO: Handle error in application's state machine. */
+            LATA = PORTA & 0x0;
             break;
         }
     }

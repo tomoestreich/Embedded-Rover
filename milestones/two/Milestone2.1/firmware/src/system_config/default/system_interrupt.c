@@ -72,8 +72,10 @@ SUBSTITUTE GOODS, TECHNOLOGY, SERVICES, OR ANY CLAIMS BY THIRD PARTIES
 // *****************************************************************************
 
 extern QueueHandle_t eyesQueue;
+extern QueueHandle_t rxQueue;
 extern int sensorData[21];
 extern int sensorDataI;
+extern bool checkReceived;
     
 void IntHandlerDrvTmrInstance0(void)
 {
@@ -81,9 +83,18 @@ void IntHandlerDrvTmrInstance0(void)
     
     xQueueSendToBackFromISR(eyesQueue, &sensorData[sensorDataI], NULL);
     sensorDataI = (sensorDataI + 1) % (sizeof(sensorData)/sizeof(sensorData[0]));
+    
+//    if(DRV_USART0_ReadByte() == 'o'){
+//        checkReceived = true;
+//    }
 }
  void IntHandlerDrvUsartInstance0(void)
 {
+    if(!DRV_USART0_ReceiverBufferIsEmpty()){
+        char temp = DRV_USART0_ReadByte();
+        xQueueSendToBackFromISR(rxQueue, &temp, NULL);
+    }
+     
     DRV_USART_TasksTransmit(sysObj.drvUsart0);
     DRV_USART_TasksReceive(sysObj.drvUsart0);
     DRV_USART_TasksError(sysObj.drvUsart0);

@@ -306,6 +306,7 @@
         <Name>drv_usart_static_byte_model.c</Name>
         <Path>Source Files/app/system_config/default/framework/driver/usart/src</Path>
         <Checksum>E56B5A603F0427F96760518142226E69</Checksum>
+        <ProjectFileChecksum>CA8CA256BBC1A84ABF2676956CB18366</ProjectFileChecksum>
       </Template>
       <Template>
         <Name>system_config.h</Name>
