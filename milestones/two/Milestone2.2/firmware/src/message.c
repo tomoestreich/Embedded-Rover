@@ -81,12 +81,16 @@ void packDbgMsg(dbg_msg msg, unsigned char *buffer){
 data_msg unpackMsg(unsigned char buffer[4]){
     // take buffer bytes and place in desired fields -- return result
     data_msg msg;
-    msg.src = (buffer[0] & 0xf0) >> 4;
-    msg.dst = buffer[0] & 0xf;
-    msg.seq = buffer[1];
-    msg.data = buffer[2];
-    if (buffer[3] != getChecksum(buffer)){
-        msg.data = 0xff;
+    
+    // perform checksum -- unpack if valid -- else give error msg struct 
+    if (getChecksum(buffer) != buffer[3]){
+        msg = buildMsg(0, 0, 0xff, 0xff);
+    }
+    else{
+        msg.src = (buffer[0] & 0xf0) >> 4;
+        msg.dst = buffer[0] & 0xf;
+        msg.seq = buffer[1];
+        msg.data = buffer[2];
     }
     return msg;
 }
@@ -136,6 +140,18 @@ int writeMessage(unsigned char msg[]){
         }
     }
     return 0;
+}
+
+// Function for taking a 4byte char array message and unpacking it/checking for 
+// common errors
+int readMessage(QueueHandle_t queue, unsigned char *buffer){
+    // check if message is available for reading
+    if(xQueueReceive(queue, &buffer, portMAX_DELAY) == pdTRUE){
+        return 1;
+    }
+    else{
+        return 0;
+    }
 }
 /* *****************************************************************************
  End of File

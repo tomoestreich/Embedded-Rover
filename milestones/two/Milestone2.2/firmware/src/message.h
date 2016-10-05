@@ -84,9 +84,8 @@ dbg_msg buildDbgMsg(int src, int dst, int seq, unsigned char dbg[10]);
 // NOTE USART MUST BE SET UP TO USE THIS FUNCTION
 int writeMessage(unsigned char msg[]);
 
-
-
-
+// Function for reading WiFly buffer into message and performing checksum
+int readMessage(QueueHandle_t queue, unsigned char *buffer);
 
 /* Provide C++ Compatibility */
 #ifdef __cplusplus
