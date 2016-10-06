@@ -266,12 +266,13 @@
       <Template>
         <Name>FreeRTOSConfig.h</Name>
         <Path>Header Files/app/system_config/default</Path>
-        <Checksum>2A14720ED6E0E1663C0F9823B0DB3AF9</Checksum>
+        <Checksum>3E571B9307B7FA4E8B1BD196F3F27C8B</Checksum>
       </Template>
       <Template>
         <Name>drv_usart_static_byte_model.c</Name>
         <Path>Source Files/app/system_config/default/framework/driver/usart/src</Path>
         <Checksum>E56B5A603F0427F96760518142226E69</Checksum>
+        <ProjectFileChecksum>26BD47FE1E47126D867168FA3679F866</ProjectFileChecksum>
       </Template>
       <Template>
         <Name>line_sensing_app.c</Name>

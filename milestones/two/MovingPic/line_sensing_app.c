@@ -57,7 +57,6 @@ LINE_SENSING_APP_DATA line_sensing_appData;
 
 extern QueueHandle_t motorQueue;
 QueueHandle_t lineQueue;
-uint64_t sequence_number;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -70,7 +69,7 @@ bool writeToMotorQueue(LineSituation sit){
     unsigned char buffer[4];
     
     dbgOutputVal(sit);
-    data_msg tx_message = buildMsg(0, 0, sequence_number++, sit);
+    data_msg tx_message = buildMsg(0, 0, 0, sit);
     packMsg(tx_message, buffer);
     
     return xQueueSendToBack(motorQueue, buffer, portMAX_DELAY); 
@@ -119,8 +118,6 @@ void LINE_SENSING_APP_Initialize ( void )
     line_sensing_appData.state = LINE_SENSING_APP_STATE_INIT;
 
     lineQueue = xQueueCreate(30, 1);
-    
-    sequence_number = 0;
 }
 
 

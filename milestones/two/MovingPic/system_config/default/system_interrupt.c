@@ -55,6 +55,9 @@ extern QueueHandle_t motorQueue;
 char encoder[5] = {0x0, 0x3, 0x9, 0xc, 0xf};
 uint64_t encoder_i = 0;
 
+char usart_buffer[4];
+int usart_i = 0;
+
 // Line Sensor Interrupt
 void IntHandlerDrvTmrInstance0(void)
 {
@@ -89,8 +92,11 @@ void IntHandlerDrvTmrInstance1(void)
     dbgOutputLoc(DLOC_MINO_USART);
     BaseType_t pxHigherPriorityTaskWoken=pdFALSE;
     if(!DRV_USART0_ReceiverBufferIsEmpty()){
-        char temp = DRV_USART0_ReadByte();
-        xQueueSendToBackFromISR(motorQueue, &temp, &pxHigherPriorityTaskWoken);
+        usart_buffer[usart_i++] = DRV_USART0_ReadByte();
+        if(usart_i == 4){
+            xQueueSendToBackFromISR(motorQueue, &usart_buffer, &pxHigherPriorityTaskWoken);
+            usart_i = 0;
+        }
     }
     dbgOutputLoc(DLOC_MINO_USART + 1);
      

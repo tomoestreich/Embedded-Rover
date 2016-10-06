@@ -57,7 +57,7 @@
 MOTOR_APP_DATA motor_appData;
 
 QueueHandle_t motorQueue;
-int sequence_number;
+uint64_t sequence_number;
 
 // *****************************************************************************
 // *****************************************************************************
@@ -65,10 +65,9 @@ int sequence_number;
 // *****************************************************************************
 // *****************************************************************************
 
-void receiveFromMotorQueue(char * buf){
-    xQueueReceive(motorQueue, buf, portMAX_DELAY);
+void receiveFromMotorQueue(unsigned char * buf){
+    xQueueReceive(motorQueue, &buf, portMAX_DELAY);
 }
-
 
 // *****************************************************************************
 // *****************************************************************************
@@ -91,13 +90,15 @@ void MOTOR_APP_Initialize ( void )
 
     motorQueue = xQueueCreate(40, 4);
     
+    if(motorQueue == 0){
+        motor_appData.state = -1;
+    }
+    
     dbgOutInit();
     
     sequence_number = 0;
     
     SYS_INT_SourceEnable(INT_SOURCE_USART_1_RECEIVE);
-    
-    dbgOutputVal(0x99);
     
     DRV_TMR0_Start();
     DRV_TMR1_Start();
