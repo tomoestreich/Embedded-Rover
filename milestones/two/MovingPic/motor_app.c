@@ -66,7 +66,7 @@ uint64_t sequence_number;
 // *****************************************************************************
 
 void receiveFromMotorQueue(unsigned char * buf){
-    xQueueReceive(motorQueue, &buf, portMAX_DELAY);
+    xQueueReceive(motorQueue, buf, portMAX_DELAY);
 }
 
 // *****************************************************************************
@@ -97,6 +97,7 @@ void MOTOR_APP_Initialize ( void )
     dbgOutInit();
     
     sequence_number = 0;
+    writeMessage("Init");
     
     SYS_INT_SourceEnable(INT_SOURCE_USART_1_RECEIVE);
     
@@ -155,8 +156,14 @@ void MOTOR_APP_Tasks ( void )
         
         case MOTOR_APP_STATE_RECEIVE:
             dbgOutputLoc(DLOC_MINO_RECEIVE);
+            writeMessage("Send");
             receiveFromMotorQueue(buffer);
-            motor_message = unpackMsg(buffer);
+            unpackMsg(buffer, &motor_message);
+            dbgOutputLoc(100);
+            dbgOutputLoc(motor_message.src);
+            dbgOutputLoc(motor_message.dst);
+            dbgOutputLoc(motor_message.data);
+            dbgOutputLoc(100);
             
             switch(motor_message.src){
             case THESEUS_CONTROL:
@@ -165,8 +172,8 @@ void MOTOR_APP_Tasks ( void )
                 motor_appData.state = MOTOR_APP_STATE_WRITE_TO_MOTOR;
                 break;
             case 0: // Internal PIC communication
-                switch(motor_message.data & 0x00f0){
-                case 0x00C0:    // LineSensor Message
+                switch(motor_message.data){
+                case 61:    // LineSensor Message
                     if(motor_message.data < ADJUST_RIGHT){
                         motor_appData.state = MOTOR_APP_STATE_SEND_INTERSECTION;
                     }else{
@@ -180,8 +187,17 @@ void MOTOR_APP_Tasks ( void )
                     break;
                 }
                 break;
+               
+            case 4: // Testing
+                switch(motor_message.data){
+                case 61:    
+                        motor_appData.state = MOTOR_APP_STATE_SEND_INTERSECTION;
+                    break;
+                }
+                break;
             }
             break;
+            
         
 
         /* The default state should never be executed. */

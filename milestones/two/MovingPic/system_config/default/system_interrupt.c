@@ -91,7 +91,7 @@ void IntHandlerDrvTmrInstance1(void)
 {
     dbgOutputLoc(DLOC_MINO_USART);
     BaseType_t pxHigherPriorityTaskWoken=pdFALSE;
-    if(!DRV_USART0_ReceiverBufferIsEmpty()){
+    while(!DRV_USART0_ReceiverBufferIsEmpty()){
         usart_buffer[usart_i++] = DRV_USART0_ReadByte();
         if(usart_i == 4){
             xQueueSendToBackFromISR(motorQueue, &usart_buffer, &pxHigherPriorityTaskWoken);

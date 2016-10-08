@@ -69,7 +69,7 @@ void packMsg(data_msg msg, unsigned char *buffer);
 void packDbgMsg(dbg_msg msg, unsigned char *buffer);
 
 // Buffer to message struct unpacking function
-data_msg unpackMsg(unsigned char buffer[4]);
+void unpackMsg(unsigned char buffer[4], data_msg * msg);
 
 // NO UNPACK NEEDED FOR DEBUG -- WILL ONLY TRAVEL TO PI
 

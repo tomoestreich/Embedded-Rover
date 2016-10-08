@@ -81,17 +81,17 @@ void packDbgMsg(dbg_msg msg, unsigned char *buffer){
 }
 
 // Function definition for unpacking message into struct
-data_msg unpackMsg(unsigned char buffer[4]){
+void unpackMsg(unsigned char buffer[4], data_msg * msg){
     // take buffer bytes and place in desired fields -- return result
-    data_msg msg;
-    msg.src = (buffer[0] & 0xf0) >> 4;
-    msg.dst = buffer[0] & 0xf;
-    msg.seq = buffer[1];
-    msg.data = buffer[2];
+//    data_msg msg;
+    msg->src = (buffer[0] & 0xf0) >> 4;
+    msg->dst = buffer[0] & 0xf;
+    msg->seq = buffer[1];
+    msg->data = buffer[2];
 //    if (buffer[3] != getChecksum(buffer)){
 //        msg.data = 0xff;
 //    }
-    return msg;
+//    return msg;
 }
 
 // Function declaration for creating a new message struct
