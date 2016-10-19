@@ -128,4 +128,58 @@ def getData(message):
 #---------------------------------------------------------------------
 # Function for connecting to a WiFly and handling its interactions
 #---------------------------------------------------------------------
-def c
+def controlComm(ip, port):
+	# Open the log file
+	dstr = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")	
+	log = open("/apps/logs/CommCtrl_"+str(port)+dstr+".log", "w")
+
+	# Create the socket
+	sock = connect(ip, port)
+
+	# Continuously wait for message and then send it back
+	while True:
+		# try to perform the comm
+		try:
+			# make the connection on the socket
+			conn, addr = sock.accept()
+			print "Connection found:", addr
+			log.write("Connection found: %s:%s" %addr)
+	
+			# begin processing messages
+			processMessages(log, conn, port)
+	
+		# close the log and socket then exit and restart 
+		except Exception as err:
+			print str(err)
+			log.write("Connection on port %s closed." % port)
+			print "Connection closed on port %s" % port 
+			closeConnection(sock, conn)
+			continue
+	log.close()
+
+#---------------------------------------------------------------------
+# MAIN FUNCTION
+#---------------------------------------------------------------------
+def main():
+	# Fork seperate processes for each WiFly
+	wi_one = threading.Thread(target=controlComm, args=serv_one)
+	wi_one.daemon = True
+	wi_one.start()
+	wi_two = threading.Thread(target=controlComm, args=serv_two)
+	wi_two.daemon = True
+	wi_two.start()
+	wi_three = threading.Thread(target=controlComm, args=serv_three)
+	wi_three.daemon = True
+	wi_three.start()
+	wi_four = threading.Thread(target=controlComm, args=serv_four)
+	wi_four.daemon = True
+	wi_four.start()
+	
+	# run infinitely 
+	while True:
+		time.sleep(100)
+	
+if __name__ == "__main__":
+	main()
+
+
