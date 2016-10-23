@@ -5,7 +5,7 @@
     Team 13
 
   @File Name
-    debug.h
+    message.h
 
   @Summary
     Messaging library header for ECE 4534 Team 13 rover
@@ -19,7 +19,10 @@
 #define _MESSAGE_H
 
 //****** Include Files ******//
-// Local
+#include "FreeRTOS.h"
+#include "queue.h"
+#include "system_config.h"
+#include "system_definitions.h"
 
 // C Libraries
 
@@ -41,14 +44,6 @@ extern "C" {
     
 //******* Data Types *******//
 // Message type struct declarations
-// Debugging message struct
-typedef struct{
-    unsigned char src;
-    unsigned char dst;
-    unsigned char seq;
-    unsigned char data[10];
-} dbg_msg;
-
 // Normal operational message struct
 typedef struct{
     unsigned int src;
@@ -58,34 +53,27 @@ typedef struct{
 } data_msg;
  
 // Packed message buffer declarations
-typedef char dbg_msg_buffer[13];
 typedef char msg_buffer[4];
 
 //****** Interface Functions ******//
 // Message struct to buffer packing functions
 void packMsg(data_msg msg, unsigned char *buffer);
 
-// Debug struct to buffer packing function
-void packDbgMsg(dbg_msg msg, unsigned char *buffer);
-
 // Buffer to message struct unpacking function
 data_msg unpackMsg(unsigned char buffer[4]);
 
-// NO UNPACK NEEDED FOR DEBUG -- WILL ONLY TRAVEL TO PI
-
 // Create msg struct with all desired data -- set to 0 if not desired
-data_msg buildMsg(int src, int dst, int seq, int data);
-
-// Create debug msg struct with desired data -- set to 0 when not desired
-dbg_msg buildDbgMsg(int src, int dst, int seq, unsigned char dbg[10]);
+data_msg buildMsg(int src, int dst, int data);
 
 // Function declaration for writing message to the USART 
 // NOTE USART MUST BE SET UP TO USE THIS FUNCTION
-int writeMessage(unsigned char msg[]);
+int sendMessage(data_msg msg);
 
+// Function for reading WiFly buffer into message and performing checksum
+int receiveMessage(data_msg *msg);
 
-
-
+// USART Initialize function call 
+int initUSART(void);
 
 /* Provide C++ Compatibility */
 #ifdef __cplusplus
