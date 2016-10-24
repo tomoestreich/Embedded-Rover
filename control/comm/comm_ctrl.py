@@ -47,6 +47,18 @@ MINOTAUR_MOTOR = 6
 RPI = 6
 DEFAULT = 15
 
+# Dict of port number to PIC relationship
+boards = {"2001": "Theseus Control", "2002": "Theseus Motor", \
+	"2003": "Minotaur Control", "2004": "Minotaur Motor"}
+
+# Connectivity status dicts
+connections = {"2001": True, "2002": True, 
+	"2003": True, "2004": True}
+pings = {"2001": False, "2002": False, 
+	"2003": False, "2004": False}
+started = {"2001": False, "2002": False, 
+	"2003": False, "2004": False}
+
 # Lists of acceptable 
 board1 = [THESEUS_EYES, THESEUS_CONTROL]
 board2 = [THESEUS_MOTOR]
@@ -70,11 +82,44 @@ def connect(ip, port):
 #---------------------------------------------------------------------
 # Function for closing a connection when desired
 #---------------------------------------------------------------------
-def closeConnection(sock, conn):
+def closeConnection(port, sock, conn):
+	print "Closing socket on port %s" % port
 	conn.close()
-	sock.shutdown(socket.SHUT_RDWR)
 	sock.close()
+	#sock.shutdown(socket.SHUT_RDWR)
 
+#---------------------------------------------------------------------
+# Function for pinging the PIC in order to maintain conn. status
+#---------------------------------------------------------------------
+def ping(conn, port):
+	while(1):
+		# If ping has not been answered mark the board as disconn.
+		if not pings[str(port)]:
+			connections[str(port)] = False
+			print "Disconnected from", boards[str(port)]
+			return
+	
+		# Otherwise perform the ping
+		connections[str(port)] = True
+		conn.sendall('00'.decode('hex'))
+		pings[str(port)] = False
+		time.sleep(1)
+		
+
+#---------------------------------------------------------------------
+# Function for closing a connection when desired
+#---------------------------------------------------------------------
+def start(conn, port):
+	# Initialize connection status values and start ping 
+	pings[str(port)] = True
+	connections[str(port)] = True	
+	started[str(port)] = True
+	w_ping = threading.Thread(target=ping, args=(conn, port))
+	w_ping.daemon = True
+	w_ping.start()
+	print "Beginning data processing for", boards[str(port)], \
+		"device"
+	
 #---------------------------------------------------------------------
 # Function for rx/tx of messages from a socket and processing them 
 # AUGMENT THIS FUNCTION TO IMPLEMENT ADDITONAL PROCESSING OR 
@@ -83,28 +128,39 @@ def closeConnection(sock, conn):
 def processMessages(log, conn, port):
 	# loop continuously processing messages
 	while True:
-		msg = conn.recv(4)
-		if msg == "*HEL" or "LO*":
+		# INSERT SIMULATED DATA GENERATOR FUNCTION HERE
+		# data = simulate()
+		# conn.sendall(data)
+
+		# exit if disconn. -- else try to receive messages
+		if not connections[str(port)]:
+			return
+		try:
+			msg = conn.recv(4)
+		except socket.timeout:
 			continue
+		
+		# Don't worry about hello message
+		if msg == "*HEL" or msg == "LO*":
+			continue
+
+		# Ping received
+		elif msg == '00'.decode('hex'):
+			print "Ping received from:", boards[str(port)]
+			pings[str(port)] = True
+			continue
+
+		# Device has just begun running
+		elif msg == "STRT":
+			start(conn, port)
+			continue
+
+		# Actual message handling
 		elif msg and msg != "*CLOS*":
 			hex_one = binascii.hexlify(msg)
-			log.write(msg)
 			print "%s: Message Received: %s: %s" % \
-				(port, msg, hex_one)
+				(boards[str(port)], msg, hex_one)
 			
-			# MESSAGE RECVD IS IN "msg" - PROCESS IT BELOW
-			# ADD ADDITIONAL FUNCTIONS OR SCRIPTS HERE
-			# ADD SIMPLE FUNCTION CALLS OF EXTERNAL METHODS
-			# DO NOT SIMPLY ADD CODE HERE
-
-			# Function for sending whatever is in "msg"
-			conn.sendall(msg)
-			# END MSG PROC./SIM. MODIFICATIONS
-		else:
-			print "Connection on port %s closed by \
-				client" % port
-			break
-
 #---------------------------------------------------------------------
 # Function for reading src and destination to route messages
 #---------------------------------------------------------------------
@@ -136,48 +192,70 @@ def controlComm(ip, port):
 	# Create the socket
 	sock = connect(ip, port)
 
-	# Continuously wait for message and then send it back
-	while True:
-		# try to perform the comm
-		try:
-			# make the connection on the socket
-			conn, addr = sock.accept()
-			print "Connection found:", addr
-			log.write("Connection found: %s:%s" %addr)
+	# try to perform the comm
+	try:
+		# make the connection on the socket
+		conn, addr = sock.accept()
+		print "Connection found:", addr
+		log.write("Connection found: %s:%s" %addr)
+
+		# begin processing messages
+		conn.settimeout(0.5)
+		processMessages(log, conn, port)
 	
-			# begin processing messages
-			processMessages(log, conn, port)
-	
-		# close the log and socket then exit and restart 
-		except Exception as err:
-			print str(err)
-			log.write("Connection on port %s closed." % port)
-			print "Connection closed on port %s" % port 
-			closeConnection(sock, conn)
-			continue
+	# close the log and socket then exit and restart 
+	except Exception as err:
+		print str(err)
+		#log.write("Connection on port %s closed." % port)
+		#print "Connection closed on port %s" % port 
+	closeConnection(port, sock, conn)
 	log.close()
 
+#---------------------------------------------------------------------
+# Function for starting thread
+#---------------------------------------------------------------------
+def startThread(thread):
+	connections[str(2000 + thread)] = True
+	if thread == 1:
+		wi_one = threading.Thread(target=controlComm, args=serv_one)
+		wi_one.daemon = True
+		wi_one.start()
+	elif thread == 2:
+		wi_two = threading.Thread(target=controlComm, args=serv_two)
+		wi_two.daemon = True
+		wi_two.start()
+	elif thread == 3:
+		wi_three = threading.Thread(target=controlComm, args=serv_three)
+		wi_three.daemon = True
+		wi_three.start()
+	elif thread == 4:
+		wi_four = threading.Thread(target=controlComm, args=serv_four)
+		wi_four.daemon = True
+		wi_four.start()
+		
 #---------------------------------------------------------------------
 # MAIN FUNCTION
 #---------------------------------------------------------------------
 def main():
 	# Fork seperate processes for each WiFly
-	wi_one = threading.Thread(target=controlComm, args=serv_one)
-	wi_one.daemon = True
-	wi_one.start()
-	wi_two = threading.Thread(target=controlComm, args=serv_two)
-	wi_two.daemon = True
-	wi_two.start()
-	wi_three = threading.Thread(target=controlComm, args=serv_three)
-	wi_three.daemon = True
-	wi_three.start()
-	wi_four = threading.Thread(target=controlComm, args=serv_four)
-	wi_four.daemon = True
-	wi_four.start()
+	for i in range(1, 5):
+		startThread(i)
 	
-	# run infinitely 
+	# run infinitely -- restart threads if connections are dropped 
 	while True:
-		time.sleep(100)
+		if not connections["2001"]:
+			time.sleep(2)
+			startThread(1)
+		if not connections["2002"]:
+			time.sleep(2)
+			startThread(2)
+		if not connections["2003"]:
+			time.sleep(2)
+			startThread(3)
+		if not connections["2004"]:
+			time.sleep(2)
+			startThread(4)
+		time.sleep(1)
 	
 if __name__ == "__main__":
 	main()
