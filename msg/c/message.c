@@ -28,6 +28,10 @@ unsigned char rxBuffer[4];
 BaseType_t pxHigherPriorityTaskWoken;
 short msg_itr;
 unsigned char seq_num;
+unsigned char isRunning;
+unsigned char lastPing;
+unsigned char sendPing;
+unsigned int droppedMessages;
 
 //****** Local Functions ******//
 // USART TX byte function wrapper
@@ -80,8 +84,10 @@ void usartReceiveEventHandler(const SYS_MODULE_INDEX index){
             msg_itr = 0;
         }
         // if it is a ping from the pi send it back and clear variables
-        else if(rxBuffer[0] == 0x00){
-            usartTransmitByte(0x0);
+        else if(rxBuffer[0] == 0xee){
+            usartTransmitByte(0xee);
+            isRunning = 0x1;
+            lastPing = 0x0;
             msg_itr = 0;
         }
     }
@@ -136,6 +142,10 @@ data_msg buildMsg(int src, int dst, int data){
 
 // Function for writingString to USART0
 int sendMessage(data_msg msg){
+    // Make sure the device is still connected
+    if(!isRunning){
+        return 0;
+    }
     int i = 0;
     msg_buffer buf;
     
@@ -149,7 +159,7 @@ int sendMessage(data_msg msg){
     for(i=0; i<4; i++){
         usartTransmitByte(buf[i]);
     }
-    seq_num = (seq_num + 1) % 256;
+    seq_num = (seq_num + 1) % 255;
     return 1;
 }
 
@@ -159,8 +169,19 @@ int receiveMessage(data_msg *msg){
     // check if message is available for reading
     msg_buffer buf;
     if(xQueueReceive(wiflyQueue, &buf, portMAX_DELAY) == pdTRUE){
-        *msg = unpackMsg(buf);
-        return 1;
+        // if "STRT" is received, let TMR5 know to start pinging -- don't unpack
+        if(buf[0]==83 & buf[1]==84 & buf[2]==82 & buf[3]==84){
+            isRunning = 1;
+            return 0;
+        }
+        
+        // otherwise unpack and return true if checksum matches
+        if(buf[3] == getChecksum(buf)){
+            *msg = unpackMsg(buf);
+            droppedMessages++;
+            return 1;
+        }
+        return 0;
     }
     else{
         return 0;
@@ -172,6 +193,8 @@ int initUSART(void){
     // Initialize library data members
     msg_itr = 0;
     seq_num = 0x00;
+    droppedMessages = 0;
+    sendPing = 0;
     int j;
     for(j=0; j<4; j++){
         rxBuffer[j] = 0x00;
@@ -186,8 +209,24 @@ int initUSART(void){
     DRV_USART_ByteReceiveCallbackSet(DRV_USART_INDEX_0, usartReceiveEventHandler);
     
     // Initialize the USART0 interrupt
+    isRunning = 0x00;
+    lastPing = 0x0;
     SYS_INT_SourceEnable(INT_SOURCE_USART_1_RECEIVE);
+    
+    // Tell the Pi to begin the control process
+    usartTransmitByte(0x53);
+    usartTransmitByte(0x54);
+    usartTransmitByte(0x52);
+    usartTransmitByte(0x54);    
+    
+    // Initialize the ping timer then exit
+    DRV_TMR1_Start();
     return 1;
+}
+
+// Function definition for sending the reset signal to the Wifly
+void resetWiFly(void){
+    return;
 }
 /* *****************************************************************************
  End of File

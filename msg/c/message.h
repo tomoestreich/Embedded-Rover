@@ -31,21 +31,25 @@
 extern "C" {
 #endif
 
-//****** Constant Declarations ******//
+//****** Constant Declarations ******//    
 // #define EXAMPLE_CONSTANT 0; 
-#define THESEUS_EYES 1
+// Constants for board IDs
+#define THESEUS_LINE 1
 #define THESEUS_CONTROL 2
 #define THESEUS_MOTOR 3
-#define MINOTAUR_EYES 4
+#define MINOTAUR_LINE 4
 #define MINOTAUR_CONTROL 5
 #define MINOTAUR_MOTOR 6
 #define RASPBERRY_PI 7
-#define DEFAULT 15
+#define DEBUG 12            // For error/debug messages use same src and dst
+#define PACKET_ERROR 13
+#define PING 14 
+#define DEFAULT 15 
     
 //******* Data Types *******//
 // Message type struct declarations
 // Normal operational message struct
-typedef struct{
+typedef struct {
     unsigned int src;
     unsigned int dst;
     unsigned int seq;
@@ -74,6 +78,9 @@ int receiveMessage(data_msg *msg);
 
 // USART Initialize function call 
 int initUSART(void);
+
+// Function for resetting the WiFly
+void resetWiFly(void);
 
 /* Provide C++ Compatibility */
 #ifdef __cplusplus
